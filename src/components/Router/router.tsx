@@ -19,8 +19,10 @@ import ExpenseManagement from "../dashboard/Expense/ExpenseManagement";
 import ExpenseCategoryManagement from "../dashboard/ExpenseCategory/ExpenseCategoryManagement";
 import UtilityManagement from "../dashboard/Utility/UtilityManagement";
 import ProfilePage from "../dashboard/Profile/ProfilePage";
-import PrivateRoute from "./PrivateRouter";
+// import PrivateRoute from "./PrivateRouter";
 import POS from "../dashboard/pos/POS";
+import ProductsList from "../dashboard/pos/ProductsList";
+import ProductDetailsPage from "../dashboard/pos/ProductDetailsPage";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +41,15 @@ const router = createBrowserRouter([
       },
       {
         path: "pos",
+        element: <ProductsList />,
+      },
+      {
+        path: "pos/add-product",
         element: <POS />,
+      },
+      {
+        path: "pos/product-details/:id",
+        element: <ProductDetailsPage />,
       },
 
       {
