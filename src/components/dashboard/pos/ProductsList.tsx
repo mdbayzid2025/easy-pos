@@ -47,7 +47,7 @@ const ProductsList: React.FC = () => {
 
   const handleSelectItem = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -89,7 +89,8 @@ const ProductsList: React.FC = () => {
           <span className="text-[#555] font-medium">Products</span>
         </div>
         <div className="text-[11px] text-gray-500">
-          Your IP Address 27.147.176.150 (Last login at: 04-11-2026 07:09 IP: 27.147.205.15)
+          Your IP Address 27.147.176.150 (Last login at: 04-11-2026 07:09 IP:
+          27.147.205.15)
         </div>
       </div>
 
@@ -137,7 +138,8 @@ const ProductsList: React.FC = () => {
 
         {/* Notice text */}
         <div className="px-5 pt-3 pb-2 text-[12px] text-[#666]">
-          Please use the table below to navigate or filter the results. You can download the table as excel and pdf.
+          Please use the table below to navigate or filter the results. You can
+          download the table as excel and pdf.
         </div>
 
         {/* Controls: Page size & Search */}
@@ -190,8 +192,12 @@ const ProductsList: React.FC = () => {
                     className="rounded border-gray-300 cursor-pointer"
                   />
                 </th>
-                <th className="py-2.5 px-3 border border-[#357ebd] font-semibold">Image</th>
-                <th className="py-2.5 px-3 border border-[#357ebd] font-semibold">Code</th>
+                <th className="py-2.5 px-3 border border-[#357ebd] font-semibold">
+                  Image
+                </th>
+                <th className="py-2.5 px-3 border border-[#357ebd] font-semibold">
+                  Code
+                </th>
                 <th className="py-2.5 px-3 border border-[#357ebd] font-semibold">
                   <div className="flex items-center justify-between">
                     <span>Product Name</span>
@@ -296,8 +302,8 @@ const ProductsList: React.FC = () => {
                       prod.stock < 0
                         ? "text-red-500"
                         : prod.stock === 0
-                        ? "text-gray-500"
-                        : "text-green-600"
+                          ? "text-gray-500"
+                          : "text-green-600"
                     }`}
                   >
                     {prod.stock.toFixed(2)}
@@ -395,16 +401,28 @@ const ProductsList: React.FC = () => {
             <tfoot>
               <tr className="bg-[#f9f9f9] text-[#888] font-semibold border-t border-[#d3d7db]">
                 <td className="py-2 px-3 border-r border-[#e7e7e7]"></td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7] text-center">Image</td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7] text-center">
+                  Image
+                </td>
                 <td className="py-2 px-3 border-r border-[#e7e7e7]">[Code]</td>
                 <td className="py-2 px-3 border-r border-[#e7e7e7]">[Name]</td>
                 <td className="py-2 px-3 border-r border-[#e7e7e7]">[Brand]</td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7]">[Category]</td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">[Buy Price]</td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">[Sale Price]</td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">[Stock]</td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7]">
+                  [Category]
+                </td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">
+                  [Buy Price]
+                </td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">
+                  [Sale Price]
+                </td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">
+                  [Stock]
+                </td>
                 <td className="py-2 px-3 border-r border-[#e7e7e7]">[Unit]</td>
-                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">[Alert Quantity]</td>
+                <td className="py-2 px-3 border-r border-[#e7e7e7] text-right">
+                  [Alert Quantity]
+                </td>
                 <td className="py-2 px-3 text-center">Actions</td>
               </tr>
             </tfoot>
@@ -414,7 +432,8 @@ const ProductsList: React.FC = () => {
         {/* Pagination & Counter matching screenshot */}
         <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#666]">
           <div>
-            Showing 1 to {Math.min(filteredProducts.length, pageSize)} of {filteredProducts.length} entries
+            Showing 1 to {Math.min(filteredProducts.length, pageSize)} of{" "}
+            {filteredProducts.length} entries
           </div>
           <div className="flex items-center space-x-1">
             <button
@@ -470,4 +489,3 @@ const ProductsList: React.FC = () => {
 };
 
 export default ProductsList;
-
