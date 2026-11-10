@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { useGetExpenseChartQuery } from "../../../redux/features/dashboard/dashboardApi";
-import { yearOptions } from "../Reports/types";
+import { yearOptions } from "../../../lib/dateConstants";
 
 export function BookingUsersChart() {
   const [selectedYear, setSelectedYear] = useState<number>(2026);

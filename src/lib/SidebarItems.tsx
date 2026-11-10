@@ -1,92 +1,53 @@
 import {
-  Users,
-  UserStar,
-  Building2,
-  FileText,
-  Receipt,
-  Tag,
-  Zap,
-  DollarSign,
+  ShoppingBag,
+  PlusCircle,
+  User,
+  ShieldCheck,
+  Bell,
 } from "lucide-react";
 import { RxDashboard } from "react-icons/rx";
 
 export const sidebarItems = [
   {
-    key: "",
+    key: "dashboard",
     label: "Dashboard",
     path: "",
     icon: <RxDashboard size={20} />,
     public: true,
   },
-
   {
-    key: "buildings",
-    label: "বিল্ডিংসমূহ",
-    path: "buildings",
-    icon: <Building2 size={20} />,
+    key: "pos",
+    label: "Products",
+    path: "pos",
+    icon: <ShoppingBag size={20} />,
     public: true,
   },
-
   {
-    key: "tenants",
-    label: "ভাড়াটিয়া তালিকা",
-    path: "tenants",
-    icon: <Users size={20} />,
+    key: "add-product",
+    label: "Add Product",
+    path: "pos/add-product",
+    icon: <PlusCircle size={20} />,
     public: true,
   },
-
   {
-    key: "income",
-    label: "আদায় ও ভাড়া",
-    path: "income",
-    icon: <DollarSign size={20} />,
+    key: "profile",
+    label: "Profile",
+    path: "profile",
+    icon: <User size={20} />,
     public: true,
   },
-
   {
-    key: "utilities",
-    label: "ইউটিলিটি ব্যবস্থাপনা",
-    path: "utilities",
-    icon: <Zap size={20} />,
+    key: "notification",
+    label: "Notifications",
+    path: "notification",
+    icon: <Bell size={20} />,
     public: true,
   },
-
-  {
-    key: "expenses",
-    label: "খরচ ব্যবস্থাপনা",
-    path: "expenses",
-    icon: <Receipt size={20} />,
-    public: true,
-  },
-
-  {
-    key: "expense-categories",
-    label: "খরচের ক্যাটাগরি",
-    path: "expense-categories",
-    icon: <Tag size={20} />,
-    public: true,
-  },
-
-  {
-    key: "reports",
-    label: "রিপোর্টস",
-    path: "reports",
-    icon: <FileText size={20} />,
-    public: true,
-  },
-
-  // {
-  //   key: "staff",
-  //   label: "স্টাফ তালিকা",
-  //   path: "staff",
-  //   icon: <Users size={20} />,
-  //   public: true,
-  // },
   {
     key: "admins",
     label: "Admin",
     path: "admins",
-    icon: <UserStar size={20} />,
+    icon: <ShieldCheck size={20} />,
     public: false,
   },
 ];

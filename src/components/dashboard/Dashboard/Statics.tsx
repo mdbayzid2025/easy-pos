@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { useGetAdminDashboardQuery } from "../../../redux/features/dashboard/dashboardApi";
-import { monthNamesBengali, yearOptions } from "../Reports/types";
+import { monthNamesBengali, yearOptions } from "../../../lib/dateConstants";
 
 interface StatsCardsProps {
   selectedMonth?: string;

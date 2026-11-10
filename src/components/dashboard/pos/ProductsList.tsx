@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react";
-import { Product, initialMockProducts } from "./mockProducts";
+import { type Product, initialMockProducts } from "./mockProducts";
 
 const ProductsList: React.FC = () => {
   const navigate = useNavigate();

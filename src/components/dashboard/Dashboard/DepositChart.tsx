@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { useGetBankDepositChartQuery } from "../../../redux/features/dashboard/dashboardApi";
-import { yearOptions } from "../Reports/types";
+import { yearOptions } from "../../../lib/dateConstants";
 
 export function DepositChart() {
   const [selectedYear, setSelectedYear] = useState<number>(2026);
