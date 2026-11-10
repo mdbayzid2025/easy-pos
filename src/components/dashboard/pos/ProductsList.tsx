@@ -47,7 +47,11 @@ const ProductsList: React.FC = () => {
 
   const handleSelectItem = (id: string) => {
     setSelectedIds((prev) =>
+<<<<<<< HEAD
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+=======
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+>>>>>>> 53f9544eb3f5aaf578fff13ae11e73b93e72db6e
     );
   };
 
