@@ -30,15 +30,15 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "pos",
+        path: "products",
         element: <ProductsList />,
       },
       {
-        path: "pos/add-product",
+        path: "products/add-product",
         element: <POS />,
       },
       {
-        path: "pos/product-details/:id",
+        path: "products/product-details/:id",
         element: <ProductDetailsPage />,
       },
 

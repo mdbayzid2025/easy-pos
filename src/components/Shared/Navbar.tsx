@@ -1,12 +1,7 @@
-import { Menu } from "lucide-react";
+import { Menu, Search, Bell, HelpCircle, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-import { useSocket } from "../../hooks/socketConnection";
-import { imageUrl } from "../../redux/base/baseAPI";
-import { useGetNotificationsCountQuery } from "../../redux/features/notification/notificationApi";
-import { useGetLoggedInAdminDataQuery } from "../../redux/features/user/userApi";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -23,12 +18,8 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onToggleSidebar }: NavbarProps) => {
-  const { data: profileData } = useGetLoggedInAdminDataQuery(
-    "name username email role readOnly permissions profileImg",
-  );
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const { refetch } = useGetNotificationsCountQuery({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -36,170 +27,113 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     navigate("/login");
   };
 
-  const socket = useSocket();
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on(`send-notification::${profileData?._id}`, () => {
-      refetch();
-    });
-
-    socket.on(`unreadCountUpdate::${profileData?._id}`, () => {
-      refetch();
-    });
-
-    return () => {
-      socket.off(`send-notification::${profileData?._id}`);
-      socket.off(`unreadCountUpdate::${profileData?._id}`);
-    };
-  }, []);
-
   return (
-    <nav className="bg-gradient-info shadow-lg w-full">
+    <nav className="bg-white border-b border-slate-200/80 w-full sticky top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="relative flex h-16 items-center justify-between gap-2">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Mobile Menu Button */}
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 transition-colors focus:outline-none cursor-pointer"
+            className="lg:hidden flex items-center justify-center p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
             aria-label="Toggle Navigation Menu"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
 
-          <div className="flex items-center gap-3 ml-auto">
-            {/* <div className="relative p-2 bg-white rounded-md">
-            <Bell onClick={() => setShowNotifications(!showNotifications)} className="text-secondary" size={22} />
-            <div className="absolute -top-1 -right-1 shadow-lg w-5 h-5 rounded-full bg-secondary text-white flex items-center justify-center">{unreadCount ?? 0}</div>
-          </div> */}
-            {/* User Menu */}
-            <div className="hidden md:flex  pl-0.5">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex bg-transparent! items-center gap-2 rounded-lg px-2 py-1.5 transition-colors  hover:bg-slate-200/50 focus:outline-none">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={
-                        profileData?.profileImg
-                          ? profileData?.profileImg.startsWith("http")
-                            ? profileData.profileImg
-                            : imageUrl + profileData.profileImg
-                          : profileData?.profileImage
-                            ? imageUrl + profileData.profileImage
-                            : "/default-avatar.png"
-                      }
-                      alt={profileData?.name || "Admin Avatar"}
-                    />
-                    <AvatarFallback className="bg-slate-700 text-xs text-white">
-                      {profileData?.name?.charAt(0) || "A"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex  flex-col  items-start">
-                    <p className="hidden text-sm font-semibold text-white lg:inline-block">
-                      {profileData?.name || "Admin"}
-                    </p>
-                    <p className="hidden text-sm font-semibold text-white lg:inline-block">
-                      {profileData?.email || profileData?.role || ""}
-                    </p>
-                  </div>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 bg-white border-slate-300  text-black"
-                >
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">Welcome!</p>
-                    </div>
-                  </DropdownMenuLabel>
-
-                  <DropdownMenuSeparator className="bg-slate-700" />
-
-                  <DropdownMenuItem
-                    asChild
-                    className="cursor-pointer focus:bg-slate-200 focus:text-white"
-                  >
-                    <Link to="/profile" className="flex items-center">
-                      <svg
-                        className="mr-2 h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      <span>My profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    asChild
-                    className="cursor-pointer focus:bg-slate-200 focus:text-white"
-                  >
-                    <Link to="/setting" className="flex items-center">
-                      <svg
-                        className="mr-2 h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <span>Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    className="cursor-pointer text-white! bg-red-600!  "
-                    onClick={() => handleLogout()}
-                  >
-                    <svg
-                      className="mr-2 h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="#fff"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                      />
-                    </svg>
-                    <span>Logout</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          {/* Search Bar matching screenshot */}
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for products, sales, suppliers..."
+                className="w-full h-9.5 pl-3.5 pr-9 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg placeholder-slate-400 text-slate-700 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
             </div>
           </div>
-          {showNotifications && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowNotifications(false)}
-              />
-              <NotificationBar profileData={profileData} />
-            </>
-          )}
+
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-3 sm:gap-5 ml-auto">
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Notifications"
+              >
+                <Bell size={18} />
+                {/* Red dot badge */}
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              </button>
+            </div>
+
+            {/* Help Button */}
+            <button
+              type="button"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-slate-50"
+            >
+              <HelpCircle size={16} className="text-slate-500" />
+              <span>Help</span>
+            </button>
+
+            {/* User Profile Dropdown matching screenshot */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-lg p-1 transition-colors hover:bg-slate-50 focus:outline-none cursor-pointer">
+                <Avatar className="h-9 w-9 ring-1 ring-slate-200">
+                  <AvatarImage
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
+                    alt="Abir Hasan"
+                  />
+                  <AvatarFallback className="bg-emerald-600 text-xs text-white font-bold">
+                    AH
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="hidden md:flex flex-col text-left">
+                  <span className="text-xs font-bold text-slate-800 leading-tight">
+                    Abir Hasan
+                  </span>
+                  <span className="text-[11px] text-slate-400 leading-tight">
+                    Admin | Protidin Bazar
+                  </span>
+                </div>
+
+                <ChevronDown size={14} className="text-slate-400 hidden sm:inline" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-56 bg-white border-slate-200 shadow-md">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-0.5">
+                    <p className="text-xs font-bold text-slate-800">Abir Hasan</p>
+                    <p className="text-[11px] text-slate-500">abir@protidinbazar.com</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer text-xs">
+                  <Link to="/profile">My Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer text-xs">
+                  <Link to="/pos">POS Terminal</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-xs text-rose-600 focus:text-rose-600"
+                >
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
+
+      {showNotifications && (
+        <NotificationBar onClose={() => setShowNotifications(false)} />
+      )}
     </nav>
   );
 };

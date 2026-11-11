@@ -1,59 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  Shuffle,
-  X,
   Upload,
-  Plus,
-  Bold,
-  Italic,
-  Underline,
-  List,
-  ListOrdered,
-  Link2,
-  Code,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   ChevronDown,
+  Check,
+  Barcode,
 } from "lucide-react";
+import { mockGroceryProducts, type GroceryProduct } from "./mockProducts";
 
-const POS: React.FC = () => {
-  // Form state
+export const POS: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("editId");
+
   const [formData, setFormData] = useState({
-    productType: "Standard",
-    productName: "",
-    productBarcode: "",
-    category: "",
-    subCategory: "",
-    brand: "",
-    productUnit: "",
-    productBuyPrice: "",
-    productSalePrice: "",
-    productImage: null as File | null,
-    productAlertQuantity: "",
-    barcodeSymbology: "Code128",
-    weight: "",
-    promotion: false,
-    productTax: "",
-    taxMethod: "Exclusive",
-    productDetails: "",
-    productDetailsForInvoice: "",
-    hasMultipleVariants: false,
-    supplier: "",
-    supplierPartNo: "",
-    supplierPrice: "",
+    productName: "Chashi Chinigura Rice 1kg",
+    sku: "SKU-10243",
+    barcode: "894110023001",
+    category: "Rice & Grains",
+    brand: "Chashi",
+    unit: "Kg",
+    description: "",
+    isActive: true,
+    // Pricing
+    purchasePrice: "132.00",
+    sellingPrice: "145.00",
+    wholesalePrice: "138.00",
+    minSellingPrice: "140.00",
+    // Inventory
+    openingStock: "0",
+    minStockAlert: "10",
+    maxStock: "500",
+    warehouseShelf: "Warehouse A , Section 3",
   });
 
-  const [imageFileName, setImageFileName] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Subcategories mapping based on Category
-  const subCategoryOptions: Record<string, string[]> = {
-    Beverages: ["Soft Drinks", "Juices", "Coffee & Tea", "Mineral Water"],
-    Groceries: ["Rice & Flour", "Oils & Ghee", "Spices & Seasoning", "Sugar & Salt"],
-    Snacks: ["Chips & Crisps", "Biscuits & Cookies", "Nuts & Dry Fruits"],
-    Dairy: ["Milk & Cream", "Cheese & Butter", "Yogurt & Curd"],
-    Bakery: ["Breads", "Cakes & Pastries", "Buns & Rolls"],
-  };
+  // If editing an existing product, populate the fields
+  useEffect(() => {
+    if (editId) {
+      const existing = mockGroceryProducts.find((p) => p.id === editId);
+      if (existing) {
+        setFormData({
+          productName: existing.name,
+          sku: existing.sku,
+          barcode: existing.barcode,
+          category: existing.category,
+          brand: existing.brand,
+          unit: existing.unit,
+          description: existing.description || "",
+          isActive: existing.isActive ?? true,
+          purchasePrice: existing.purchasePrice.toFixed(2),
+          sellingPrice: existing.sellingPrice.toFixed(2),
+          wholesalePrice: (existing.wholesalePrice || existing.purchasePrice * 1.05).toFixed(2),
+          minSellingPrice: (existing.minSellingPrice || existing.sellingPrice * 0.95).toFixed(2),
+          openingStock: (existing.openingStock ?? 0).toString(),
+          minStockAlert: (existing.minStockAlert ?? 10).toString(),
+          maxStock: (existing.maxStock ?? 500).toString(),
+          warehouseShelf: existing.warehouseShelf || "Warehouse A , Section 3",
+        });
+      }
+    }
+  }, [editId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -63,145 +71,125 @@ const POS: React.FC = () => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-        ...(name === "category" ? { subCategory: "" } : {}),
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const generateBarcode = () => {
-    const randomBarcode = Math.floor(100000000000 + Math.random() * 900000000000).toString();
-    setFormData((prev) => ({ ...prev, productBarcode: randomBarcode }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setFormData((prev) => ({ ...prev, productImage: file }));
-      setImageFileName(file.name);
+      setImagePreview(URL.createObjectURL(file));
     }
-  };
-
-  const clearAlertQuantity = () => {
-    setFormData((prev) => ({ ...prev, productAlertQuantity: "" }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting Product Form Data:", formData);
-    alert("Product added successfully!");
+    alert("Product saved successfully!");
+    navigate("/products");
   };
 
   return (
-    <div className="min-h-screen bg-[#f1f2f7] p-3 sm:p-5 font-sans text-xs sm:text-sm text-[#555]">
-      {/* Top Breadcrumb & Status Info Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 text-[11px] text-[#777] border-b border-[#e2e4e8] mb-4 gap-1">
-        <div className="flex items-center space-x-1.5">
-          <a href="#" className="text-[#337ab7] hover:underline">
-            Home
-          </a>
-          <span>/</span>
-          <a href="#" className="text-[#337ab7] hover:underline">
-            Products
-          </a>
-          <span>/</span>
-          <span className="text-[#555] font-medium">Add Product</span>
+    <div className="w-full min-h-screen bg-[#f8fafc] p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* 1. Header with Breadcrumb and Action Buttons */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+            <Link to="/products" className="text-emerald-700 hover:underline">
+              Products
+            </Link>
+            <span>&gt;</span>
+            <span className="text-slate-600 font-semibold">Add Product</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {editId ? "Edit Product" : "Add New Product"}
+          </h1>
         </div>
-        <div className="text-[11px] text-gray-500">
-          Your IP Address 27.147.176.150 (Last login at: 02-11-2026 19:38 IP: 103.152.147.117)
+
+        {/* Top Action Buttons */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => navigate("/products")}
+            className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="add-product-form"
+            className="px-4.5 py-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs sm:text-sm font-semibold rounded-xl flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+          >
+            <Check size={16} className="stroke-[2.5]" />
+            <span>Save Product</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Card Container */}
-      <div className="bg-white border border-[#d3d7db] rounded-sm shadow-xs">
-        {/* Card Header */}
-        <div className="bg-[#f8f9fa] border-b border-[#e5e5e5] px-4 py-2.5 flex items-center gap-2">
-          <span className="text-[#428bca] font-bold text-base leading-none">+</span>
-          <h2 className="text-[#428bca] font-semibold text-sm">Add Product</h2>
-        </div>
+      {/* 2. Main Form Grid Layout */}
+      <form id="add-product-form" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* LEFT COLUMN: Product Information (takes 7 cols) */}
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-2xs space-y-4">
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+              Product Information
+            </h3>
 
-        {/* Form Instructions */}
-        <div className="px-5 pt-4 pb-2 text-[12px] text-[#666]">
-          Please fill in the information below. The field labels marked with{" "}
-          <span className="text-red-500 font-bold">*</span> are required input fields.
-        </div>
+            {/* Product Name */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Product Name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="productName"
+                value={formData.productName}
+                onChange={handleInputChange}
+                required
+                className="w-full h-9.5 px-3.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
+              />
+            </div>
 
-        {/* The Form */}
-        <form onSubmit={handleSubmit} className="px-5 pb-8 pt-2">
-          {/* Main 2-Column Responsive Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-4">
-            {/* LEFT COLUMN: Main Inputs (takes 7 cols on lg, or full width) */}
-            <div className="lg:col-span-6 space-y-4">
-              {/* Product Type */}
+            {/* SKU and Barcode Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* SKU */}
               <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Type <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="productType"
-                    value={formData.productType}
-                    onChange={handleInputChange}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="Standard">Standard</option>
-                    <option value="Combo">Combo</option>
-                    <option value="Digital">Digital</option>
-                    <option value="Service">Service</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Product Name */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Name <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  SKU <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
-                  name="productName"
-                  value={formData.productName}
+                  name="sku"
+                  value={formData.sku}
                   onChange={handleInputChange}
                   required
-                  className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
+                  className="w-full h-9.5 px-3.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
-              {/* Product Bar Code */}
+              {/* Barcode */}
               <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Bar Code <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Barcode
                 </label>
-                <div className="flex">
+                <div className="relative">
                   <input
                     type="text"
-                    name="productBarcode"
-                    value={formData.productBarcode}
+                    name="barcode"
+                    value={formData.barcode}
                     onChange={handleInputChange}
-                    required
-                    className="flex-1 h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-l-xs focus:border-[#3c8dbc] focus:outline-none"
+                    className="w-full h-9.5 pl-3.5 pr-9 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors"
                   />
-                  <button
-                    type="button"
-                    onClick={generateBarcode}
-                    title="Generate Random Barcode"
-                    className="px-3 h-8 bg-[#f4f4f4] border border-l-0 border-[#d2d6de] rounded-r-xs hover:bg-[#e7e7e7] text-gray-600 flex items-center justify-center transition-colors"
-                  >
-                    <Shuffle className="w-3.5 h-3.5" />
-                  </button>
+                  <Barcode className="w-5 h-5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
                 </div>
-                <p className="text-[11px] text-[#888] mt-1">
-                  You can scan your barcode and select the correct symbology below
-                </p>
               </div>
+            </div>
 
+            {/* Category and Brand Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Category */}
               <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Category <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Category <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -209,559 +197,343 @@ const POS: React.FC = () => {
                     value={formData.category}
                     onChange={handleInputChange}
                     required
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
+                    className="w-full h-9.5 px-3.5 pr-8 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
                   >
-                    <option value="">Select Category</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Groceries">Groceries</option>
-                    <option value="Snacks">Snacks</option>
+                    <option value="Rice & Grains">Rice & Grains</option>
+                    <option value="Oil & Fats">Oil & Fats</option>
+                    <option value="Baking & Sugar">Baking & Sugar</option>
+                    <option value="Salt & Spices">Salt & Spices</option>
                     <option value="Dairy">Dairy</option>
                     <option value="Bakery">Bakery</option>
+                    <option value="Eggs">Eggs</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Biscuits & Snacks">Biscuits & Snacks</option>
                   </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Sub Category */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Sub Category
-                </label>
-                <div className="relative">
-                  <select
-                    name="subCategory"
-                    value={formData.subCategory}
-                    onChange={handleInputChange}
-                    disabled={!formData.category}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer disabled:bg-gray-100 disabled:text-gray-400"
-                  >
-                    <option value="">
-                      {formData.category ? "Select Sub Category" : "Please select category to load"}
-                    </option>
-                    {formData.category &&
-                      subCategoryOptions[formData.category]?.map((sub) => (
-                        <option key={sub} value={sub}>
-                          {sub}
-                        </option>
-                      ))}
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
               {/* Brand */}
               <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">Brand</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Brand <span className="text-rose-500">*</span>
+                </label>
                 <div className="relative">
                   <select
                     name="brand"
                     value={formData.brand}
                     onChange={handleInputChange}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
+                    required
+                    className="w-full h-9.5 px-3.5 pr-8 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
                   >
-                    <option value="">Select Brand</option>
-                    <option value="Nestle">Nestle</option>
-                    <option value="Unilever">Unilever</option>
-                    <option value="Coca-Cola">Coca-Cola</option>
-                    <option value="PepsiCo">PepsiCo</option>
+                    <option value="Chashi">Chashi</option>
+                    <option value="Rupchanda">Rupchanda</option>
+                    <option value="Fresh">Fresh</option>
+                    <option value="ACI Pure">ACI Pure</option>
+                    <option value="Aarong Dairy">Aarong Dairy</option>
+                    <option value="All Time">All Time</option>
+                    <option value="Farm Fresh">Farm Fresh</option>
+                    <option value="Ispahani">Ispahani</option>
                     <option value="Pran">Pran</option>
-                    <option value="Square">Square</option>
                   </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Product Unit */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Unit <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="productUnit"
-                    value={formData.productUnit}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Unit</option>
-                    <option value="Piece (pc)">Piece (pc)</option>
-                    <option value="Kilogram (kg)">Kilogram (kg)</option>
-                    <option value="Gram (g)">Gram (g)</option>
-                    <option value="Litre (ltr)">Litre (ltr)</option>
-                    <option value="Box (bx)">Box (bx)</option>
-                    <option value="Packet (pkt)">Packet (pkt)</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Product Buy Price */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Buy Price <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  name="productBuyPrice"
-                  value={formData.productBuyPrice}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="0.00"
-                  className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
-                />
-              </div>
-
-              {/* Product Sale Price */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Sale Price <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  name="productSalePrice"
-                  value={formData.productSalePrice}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="0.00"
-                  className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
-                />
-              </div>
-
-              {/* Product Image */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Image
-                </label>
-                <div className="relative flex">
-                  <input
-                    type="text"
-                    readOnly
-                    value={imageFileName}
-                    placeholder=""
-                    className="flex-1 h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-l-xs focus:outline-none cursor-pointer"
-                    onClick={() => document.getElementById("file-upload-input")?.click()}
-                  />
-                  <label
-                    htmlFor="file-upload-input"
-                    className="h-8 px-3.5 bg-[#337ab7] hover:bg-[#286090] text-white text-xs font-medium flex items-center justify-center gap-1.5 rounded-r-xs cursor-pointer transition-colors shadow-xs"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Browse ...</span>
-                  </label>
-                  <input
-                    id="file-upload-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-
-              {/* Product Alert Quantity */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Product Alert Quantity
-                </label>
-                <div className="flex">
-                  <input
-                    type="number"
-                    name="productAlertQuantity"
-                    value={formData.productAlertQuantity}
-                    onChange={handleInputChange}
-                    placeholder=""
-                    className="flex-1 h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-l-xs focus:border-[#3c8dbc] focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={clearAlertQuantity}
-                    title="Clear alert quantity"
-                    className="px-2.5 h-8 bg-[#337ab7] hover:bg-[#286090] text-white border border-l-0 border-[#337ab7] rounded-r-xs flex items-center justify-center transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Barcode Symbology */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                  Barcode Symbology <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="barcodeSymbology"
-                    value={formData.barcodeSymbology}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="Code128">Code128</option>
-                    <option value="Code39">Code39</option>
-                    <option value="EAN-13">EAN-13</option>
-                    <option value="UPC-A">UPC-A</option>
-                    <option value="EAN-8">EAN-8</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Weight (kg) */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">Weight (kg)</label>
-                <input
-                  type="number"
-                  step="any"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleInputChange}
-                  placeholder=""
-                  className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
-                />
-              </div>
-
-              {/* Promotion Checkbox */}
-              <div className="pt-1">
-                <label className="inline-flex items-center gap-2 text-xs font-semibold text-[#444] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="promotion"
-                    checked={formData.promotion}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 rounded border-[#ccc] text-[#337ab7] focus:ring-0 cursor-pointer"
-                  />
-                  <span>Promotion</span>
-                </label>
-              </div>
-
-              {/* Product Tax */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">Product Tax</label>
-                <div className="relative">
-                  <select
-                    name="productTax"
-                    value={formData.productTax}
-                    onChange={handleInputChange}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Product Tax</option>
-                    <option value="No Tax (0%)">No Tax (0%)</option>
-                    <option value="VAT (5%)">VAT (5%)</option>
-                    <option value="VAT (7.5%)">VAT (7.5%)</option>
-                    <option value="VAT (15%)">VAT (15%)</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Tax Method */}
-              <div>
-                <label className="block text-[12px] font-semibold text-[#444] mb-1">Tax Method</label>
-                <div className="relative">
-                  <select
-                    name="taxMethod"
-                    value={formData.taxMethod}
-                    onChange={handleInputChange}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="Exclusive">Exclusive</option>
-                    <option value="Inclusive">Inclusive</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>
 
-            {/* RIGHT COLUMN: Variants & Supplier Section (takes 6 cols on lg) */}
-            <div className="lg:col-span-6 space-y-4">
-              {/* Variant Checkbox */}
-              <div className="flex items-center gap-2 pt-0.5">
-                <input
-                  type="checkbox"
-                  id="hasMultipleVariants"
-                  name="hasMultipleVariants"
-                  checked={formData.hasMultipleVariants}
+            {/* Unit */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Unit <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  name="unit"
+                  value={formData.unit}
                   onChange={handleInputChange}
-                  className="w-4 h-4 rounded border-[#ccc] text-[#337ab7] focus:ring-0 cursor-pointer"
-                />
-                <label
-                  htmlFor="hasMultipleVariants"
-                  className="text-xs font-semibold text-[#444] cursor-pointer"
+                  required
+                  className="w-full h-9.5 px-3.5 pr-8 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer"
                 >
-                  This product has multiple variants{" "}
-                  <span className="font-normal text-gray-500 italic">
-                    e.g. Multiple Sizes and/or Colors
-                  </span>
-                </label>
+                  <option value="Kg">Kg</option>
+                  <option value="Pcs">Pcs</option>
+                  <option value="Pack">Pack</option>
+                  <option value="Dozen">Dozen</option>
+                  <option value="Litre">Litre</option>
+                  <option value="Box">Box</option>
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
               </div>
+            </div>
 
-              {/* Supplier Box */}
-              <div className="pt-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="text-xs font-bold text-[#444]">Supplier</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const name = prompt("Enter new supplier name:");
-                      if (name) alert(`Supplier "${name}" added!`);
-                    }}
-                    title="Add Supplier"
-                    className="w-4 h-4 bg-[#337ab7] hover:bg-[#286090] text-white flex items-center justify-center rounded-xs transition-colors shadow-xs"
-                  >
-                    <Plus className="w-3 h-3 stroke-[3]" />
-                  </button>
-                </div>
+            {/* Product Description */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Product Description
+              </label>
+              <textarea
+                name="description"
+                rows={4}
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Add product descriptions, ingredients, or brand info..."
+                className="w-full p-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors resize-y"
+              />
+            </div>
 
-                {/* Supplier Dropdown */}
-                <div className="relative mb-2.5">
-                  <select
-                    name="supplier"
-                    value={formData.supplier}
-                    onChange={handleInputChange}
-                    className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Select Supplier</option>
-                    <option value="Apex Global Imports">Apex Global Imports</option>
-                    <option value="Direct Agro Farm">Direct Agro Farm</option>
-                    <option value="National Distributors Ltd">National Distributors Ltd</option>
-                    <option value="Metro Wholesale Supplies">Metro Wholesale Supplies</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                </div>
+            {/* Product Status Toggle */}
+            <div className="pt-2">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Product Status <span className="text-rose-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-slate-500">Status</span>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))}
+                  className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    formData.isActive ? "bg-emerald-600" : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      formData.isActive ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+              <span className="text-[11px] text-slate-400 block mt-0.5">
+                {formData.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
+          </div>
 
-                {/* Supplier Part No & Price Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <input
-                      type="text"
-                      name="supplierPartNo"
-                      value={formData.supplierPartNo}
-                      onChange={handleInputChange}
-                      placeholder="Supplier Part No."
-                      className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
+          {/* RIGHT COLUMN: Product Image + Pricing + Inventory (takes 5 cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            {/* 1. Product Image Upload Box */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs">
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Product Image</h3>
+              <label
+                htmlFor="product-image-upload"
+                className="border-2 border-dashed border-slate-200 hover:border-emerald-500/70 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/20 transition-all group"
+              >
+                {imagePreview ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <img
+                      src={imagePreview}
+                      alt="Product preview"
+                      className="w-20 h-20 object-contain rounded-lg border border-slate-200"
                     />
+                    <span className="text-xs font-semibold text-emerald-600">
+                      Change image
+                    </span>
                   </div>
-                  <div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center text-slate-500 group-hover:text-emerald-700 transition-colors">
+                      <Upload size={18} />
+                    </div>
+                    <span className="text-xs font-bold text-slate-800">
+                      Upload Product Image
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      Drag and drop or click to upload<br />(PNG, JPG, max 2MB)
+                    </span>
+                  </div>
+                )}
+                <input
+                  id="product-image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* 2. Pricing Box */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3.5">
+              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5">
+                Pricing
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                {/* Purchase Price */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Purchase Price (৳) <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">
+                      ৳
+                    </span>
                     <input
                       type="number"
                       step="any"
-                      name="supplierPrice"
-                      value={formData.supplierPrice}
+                      name="purchasePrice"
+                      value={formData.purchasePrice}
                       onChange={handleInputChange}
-                      placeholder="Supplier Price"
-                      className="w-full h-8 px-2.5 text-xs text-[#555] bg-white border border-[#d2d6de] rounded-xs focus:border-[#3c8dbc] focus:outline-none"
+                      required
+                      className="w-full h-9 pl-7 pr-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Selling Price */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Selling Price (৳) <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">
+                      ৳
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      name="sellingPrice"
+                      value={formData.sellingPrice}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full h-9 pl-7 pr-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Wholesale Price */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Wholesale Price (৳) <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">
+                      ৳
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      name="wholesalePrice"
+                      value={formData.wholesalePrice}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full h-9 pl-7 pr-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Min. Selling Price */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Min. Selling Price (৳) <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">
+                      ৳
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      name="minSellingPrice"
+                      value={formData.minSellingPrice}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full h-9 pl-7 pr-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* LOWER SECTION: Two Rich Text / Details Editors side-by-side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-            {/* 17. Product Details */}
-            <div>
-              <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                Product Details
-              </label>
-              <div className="border border-[#d2d6de] rounded-xs overflow-hidden bg-white shadow-2xs">
-                {/* Editor Toolbar */}
-                <div className="flex items-center flex-wrap gap-1 bg-[#f4f4f4] border-b border-[#e5e5e5] px-2 py-1.5 text-gray-700">
-                  <button
-                    type="button"
-                    title="Numbered List"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <ListOrdered className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Bullet List"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <List className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Align Left"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Align Center"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignCenter className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Align Right"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignRight className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Bold"
-                    className="p-1 hover:bg-[#e0e0e0] rounded font-bold"
-                  >
-                    <Bold className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Italic"
-                    className="p-1 hover:bg-[#e0e0e0] rounded italic"
-                  >
-                    <Italic className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Underline"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Underline className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Insert Link"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Code View"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Code className="w-3.5 h-3.5" />
-                  </button>
+            {/* 3. Inventory Box */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3.5">
+              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5">
+                Inventory
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                {/* Opening Stock */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Opening Stock
+                  </label>
+                  <input
+                    type="number"
+                    name="openingStock"
+                    value={formData.openingStock}
+                    onChange={handleInputChange}
+                    className="w-full h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                  />
                 </div>
-                {/* Text Area Content */}
-                <textarea
-                  name="productDetails"
-                  value={formData.productDetails}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-2.5 text-xs text-[#555] focus:outline-none resize-y"
-                  placeholder=""
-                />
+
+                {/* Min. Stock Alert */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Min. Stock Alert
+                  </label>
+                  <input
+                    type="number"
+                    name="minStockAlert"
+                    value={formData.minStockAlert}
+                    onChange={handleInputChange}
+                    className="w-full h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                {/* Max. Stock */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Max. Stock
+                  </label>
+                  <input
+                    type="number"
+                    name="maxStock"
+                    value={formData.maxStock}
+                    onChange={handleInputChange}
+                    className="w-full h-9 px-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                {/* Warehouse/Shelf */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Warehouse/Shelf <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="warehouseShelf"
+                      value={formData.warehouseShelf}
+                      onChange={handleInputChange}
+                      className="w-full h-9 pl-3 pr-7 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer truncate"
+                    >
+                      <option value="Warehouse A , Section 3">Warehouse A , Section 3</option>
+                      <option value="Warehouse B , Section 1">Warehouse B , Section 1</option>
+                      <option value="Warehouse C , Section 2">Warehouse C , Section 2</option>
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-3 pointer-events-none" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 18. Product details for invoice */}
-            <div>
-              <label className="block text-[12px] font-semibold text-[#444] mb-1">
-                Product details for invoice
-              </label>
-              <div className="border border-[#d2d6de] rounded-xs overflow-hidden bg-white shadow-2xs">
-                {/* Editor Toolbar */}
-                <div className="flex items-center flex-wrap gap-1 bg-[#f4f4f4] border-b border-[#e5e5e5] px-2 py-1.5 text-gray-700">
-                  <button
-                    type="button"
-                    title="Numbered List"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <ListOrdered className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Bullet List"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <List className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Align Left"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Align Center"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignCenter className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Align Right"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <AlignRight className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Bold"
-                    className="p-1 hover:bg-[#e0e0e0] rounded font-bold"
-                  >
-                    <Bold className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Italic"
-                    className="p-1 hover:bg-[#e0e0e0] rounded italic"
-                  >
-                    <Italic className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Underline"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Underline className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="w-[1px] h-4 bg-gray-300 mx-1" />
-                  <button
-                    type="button"
-                    title="Insert Link"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Code View"
-                    className="p-1 hover:bg-[#e0e0e0] rounded"
-                  >
-                    <Code className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                {/* Text Area Content */}
-                <textarea
-                  name="productDetailsForInvoice"
-                  value={formData.productDetailsForInvoice}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-2.5 text-xs text-[#555] focus:outline-none resize-y"
-                  placeholder=""
-                />
-              </div>
+            {/* Bottom Save Action Button */}
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate("/products")}
+                className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4.5 py-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs sm:text-sm font-semibold rounded-xl flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              >
+                <Check size={16} className="stroke-[2.5]" />
+                <span>Save Product</span>
+              </button>
             </div>
           </div>
-
-          {/* Footer Submit Button */}
-          <div className="mt-8 flex justify-center">
-            <button
-              type="submit"
-              className="bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-semibold px-12 py-2 rounded-xs shadow transition-colors cursor-pointer"
-            >
-              Add Product
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

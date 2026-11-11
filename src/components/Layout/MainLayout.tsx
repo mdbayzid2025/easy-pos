@@ -30,7 +30,7 @@ export default function DashboardLayout() {
   return (
     <div className="min-h-screen w-full bg-[#F7F9FB] flex relative overflow-x-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col min-w-0 w-full transition-all duration-300 lg:ml-70">
+      <div className="flex-1 flex flex-col min-w-0 w-full transition-all duration-300 lg:ml-60">
         <Navbar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
         <main className="flex-1 min-h-[calc(100vh-4rem)] w-full">
           <Outlet />

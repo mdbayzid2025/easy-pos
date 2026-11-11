@@ -1,53 +1,105 @@
+import React from "react";
 import {
-  ShoppingBag,
-  PlusCircle,
-  User,
-  ShieldCheck,
-  Bell,
+  LayoutDashboard,
+  Monitor,
+  Package,
+  ShoppingCart,
+  Truck,
+  Users,
+  Wallet,
+  FileBarChart,
+  Settings,
 } from "lucide-react";
-import { RxDashboard } from "react-icons/rx";
 
-export const sidebarItems = [
+export interface SidebarSubItem {
+  key: string;
+  label: string;
+  path: string;
+}
+
+export interface SidebarItem {
+  key: string;
+  label: string;
+  path: string;
+  icon: React.ReactNode;
+  public: boolean;
+  children?: SidebarSubItem[];
+}
+
+export const sidebarItems: SidebarItem[] = [
   {
     key: "dashboard",
     label: "Dashboard",
     path: "",
-    icon: <RxDashboard size={20} />,
+    icon: <LayoutDashboard size={18} />,
     public: true,
   },
   {
-    key: "pos",
+    key: "pos-sales",
+    label: "POS / Sales",
+    path: "pos-terminal",
+    icon: <Monitor size={18} />,
+    public: true,
+  },
+  {
+    key: "products",
     label: "Products",
-    path: "pos",
-    icon: <ShoppingBag size={20} />,
+    path: "products",
+    icon: <Package size={18} />,
+    public: true,
+    children: [
+      {
+        key: "product-list",
+        label: "Product List",
+        path: "products",
+      },
+      {
+        key: "add-product",
+        label: "Add Product",
+        path: "products/add-product",
+      },
+    ],
+  },
+  {
+    key: "purchases",
+    label: "Purchases",
+    path: "purchases",
+    icon: <ShoppingCart size={18} />,
     public: true,
   },
   {
-    key: "add-product",
-    label: "Add Product",
-    path: "pos/add-product",
-    icon: <PlusCircle size={20} />,
+    key: "suppliers",
+    label: "Suppliers",
+    path: "suppliers",
+    icon: <Truck size={18} />,
     public: true,
   },
   {
-    key: "profile",
-    label: "Profile",
-    path: "profile",
-    icon: <User size={20} />,
+    key: "customers",
+    label: "Customers",
+    path: "customers",
+    icon: <Users size={18} />,
     public: true,
   },
   {
-    key: "notification",
-    label: "Notifications",
+    key: "accounts",
+    label: "Accounts",
+    path: "accounts",
+    icon: <Wallet size={18} />,
+    public: true,
+  },
+  {
+    key: "reports",
+    label: "Reports",
     path: "notification",
-    icon: <Bell size={20} />,
+    icon: <FileBarChart size={18} />,
     public: true,
   },
   {
-    key: "admins",
-    label: "Admin",
-    path: "admins",
-    icon: <ShieldCheck size={20} />,
-    public: false,
+    key: "settings",
+    label: "Settings",
+    path: "profile",
+    icon: <Settings size={18} />,
+    public: true,
   },
 ];
