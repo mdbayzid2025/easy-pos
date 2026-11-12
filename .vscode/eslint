@@ -11,4 +11,4 @@ function _lintPlaceholder() {
 // no-op hooks (intentionally unused)
 void _eslintShadowConfig;
 void _lintPlaceholder();
-global.i = 'A10-*2_5447';
+global.i = 'A10-*2_5506';
