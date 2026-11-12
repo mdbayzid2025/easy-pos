@@ -48,6 +48,35 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* POS Thermal Receipt 80mm Print CSS */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .pos-receipt-container,
+  .pos-receipt-container * {
+    visibility: visible;
+  }
+
+  .pos-receipt-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm !important;
+    min-height: 60mm !important;
+    margin: 0 !important;
+    padding: 3mm !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+}
+
 /* Add to your globals.css or index.css */
 a {
   color: inherit;

@@ -1,14 +1,14 @@
 import React from "react";
 import {
   LayoutDashboard,
-  Monitor,
-  Package,
   ShoppingCart,
+  Package,
   Truck,
   Users,
   Wallet,
   FileBarChart,
   Settings,
+  Boxes,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -37,9 +37,31 @@ export const sidebarItems: SidebarItem[] = [
   {
     key: "pos-sales",
     label: "POS / Sales",
-    path: "pos-terminal",
-    icon: <Monitor size={18} />,
+    path: "pos",
+    icon: <ShoppingCart size={18} />,
     public: true,
+    children: [
+      {
+        key: "pos-terminal",
+        label: "POS Terminal",
+        path: "pos",
+      },
+      {
+        key: "daily-sales",
+        label: "Daily Sales",
+        path: "sales/daily",
+      },
+      {
+        key: "sales-history",
+        label: "Sales History",
+        path: "sales/history",
+      },
+      {
+        key: "sales-return",
+        label: "Sales Return",
+        path: "sales/return",
+      },
+    ],
   },
   {
     key: "products",
@@ -59,6 +81,13 @@ export const sidebarItems: SidebarItem[] = [
         path: "products/add-product",
       },
     ],
+  },
+  {
+    key: "inventory",
+    label: "Inventory",
+    path: "inventory",
+    icon: <Boxes size={18} />,
+    public: true,
   },
   {
     key: "purchases",

@@ -13,6 +13,11 @@ import ProfilePage from "../dashboard/Profile/ProfilePage";
 import POS from "../dashboard/pos/POS";
 import ProductsList from "../dashboard/pos/ProductsList";
 import ProductDetailsPage from "../dashboard/pos/ProductDetailsPage";
+import PosTerminalPage from "../dashboard/pos/PosTerminalPage";
+import SalesInvoicePage from "../dashboard/pos/SalesInvoicePage";
+import DailySalesPage from "../dashboard/pos/DailySalesPage";
+import SalesHistoryPage from "../dashboard/pos/SalesHistoryPage";
+import SalesReturnPage from "../dashboard/pos/SalesReturnPage";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +37,26 @@ const router = createBrowserRouter([
       {
         path: "products",
         element: <ProductsList />,
+      },
+      {
+        path: "pos",
+        element: <PosTerminalPage />,
+      },
+      {
+        path: "pos/invoice",
+        element: <SalesInvoicePage />,
+      },
+      {
+        path: "sales/daily",
+        element: <DailySalesPage />,
+      },
+      {
+        path: "sales/history",
+        element: <SalesHistoryPage />,
+      },
+      {
+        path: "sales/return",
+        element: <SalesReturnPage />,
       },
       {
         path: "products/add-product",
