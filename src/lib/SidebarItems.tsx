@@ -83,11 +83,28 @@ export const sidebarItems: SidebarItem[] = [
     ],
   },
   {
-    key: "inventory",
-    label: "Inventory",
+    key: "stock-manage",
+    label: "Stock Manage",
     path: "inventory",
     icon: <Boxes size={18} />,
     public: true,
+    children: [
+      {
+        key: "stock-overview",
+        label: "Stock Overview",
+        path: "inventory/stock-overview",
+      },
+      {
+        key: "stock-adjustment",
+        label: "Stock Adjustment",
+        path: "inventory/stock-adjustment",
+      },
+      {
+        key: "receive-stock",
+        label: "Receive Stock",
+        path: "inventory/receive-stock",
+      },
+    ],
   },
   {
     key: "purchases",
@@ -95,6 +112,23 @@ export const sidebarItems: SidebarItem[] = [
     path: "purchases",
     icon: <ShoppingCart size={18} />,
     public: true,
+    children: [
+      {
+        key: "all-purchases",
+        label: "All Purchases",
+        path: "purchases",
+      },
+      {
+        key: "new-purchase",
+        label: "New Purchase",
+        path: "purchases/new",
+      },
+      {
+        key: "purchase-return",
+        label: "Purchase Return",
+        path: "purchases/return",
+      },
+    ],
   },
   {
     key: "suppliers",
@@ -102,6 +136,18 @@ export const sidebarItems: SidebarItem[] = [
     path: "suppliers",
     icon: <Truck size={18} />,
     public: true,
+    children: [
+      {
+        key: "all-suppliers",
+        label: "All Suppliers",
+        path: "suppliers",
+      },
+      {
+        key: "add-supplier",
+        label: "Add Supplier",
+        path: "suppliers/new",
+      },
+    ],
   },
   {
     key: "customers",

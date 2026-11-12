@@ -6,7 +6,7 @@ import {
   Check,
   Barcode,
 } from "lucide-react";
-import { mockGroceryProducts, type GroceryProduct } from "./mockProducts";
+import { mockGroceryProducts } from "./mockProducts";
 
 export const POS: React.FC = () => {
   const navigate = useNavigate();

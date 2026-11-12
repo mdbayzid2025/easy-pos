@@ -6,8 +6,6 @@ import {
   Eye,
   Edit2,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";

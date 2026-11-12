@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { ShoppingCart, QrCode } from "lucide-react";
 
 export interface ReceiptItem {

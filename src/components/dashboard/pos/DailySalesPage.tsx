@@ -5,13 +5,8 @@ import {
   ChevronDown,
   Search,
   Download,
-  Eye,
-  Printer,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import {
-  AreaChart,
   Area,
   ResponsiveContainer,
   Bar,

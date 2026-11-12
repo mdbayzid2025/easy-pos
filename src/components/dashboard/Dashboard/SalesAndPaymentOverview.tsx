@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import {
-  AreaChart,
   Area,
   XAxis,
   YAxis,

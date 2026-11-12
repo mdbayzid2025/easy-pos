@@ -19,9 +19,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // State to track open dropdowns, default "products" to open
+  // State to track open dropdowns, default "products", "stock-manage", "purchases" & "suppliers" to open
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     products: true,
+    "stock-manage": true,
+    inventory: true,
+    purchases: true,
+    suppliers: true,
   });
 
   const toggleDropdown = (key: string, e: React.MouseEvent) => {
