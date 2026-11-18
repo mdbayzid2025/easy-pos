@@ -4,8 +4,6 @@ import {
   ShoppingCart,
   Package,
   Truck,
-  Users,
-  Wallet,
   FileBarChart,
   Settings,
   Boxes,
